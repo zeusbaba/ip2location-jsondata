@@ -1,0 +1,84 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.wareninja.opensource</groupId>
+  <artifactId>ip2location-jsondata</artifactId>
+  <version>0.0.1</version>
+  <name>ip2location-jsondata</name>
+  <description>Generate JSON data (for MongoDB) from IP2LOCATION...-DBx.CSV files</description>
+    <build>
+    <sourceDirectory>src</sourceDirectory>
+    <plugins>
+      <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.0</version>
+        <configuration>
+          <source/>
+          <target/>
+        </configuration>
+      </plugin>
+      	<plugin>
+             <artifactId>maven-assembly-plugin</artifactId>
+             <configuration>
+                 <archive>
+                     <manifest>
+                         <addClasspath>true</addClasspath>
+                         <mainClass>com.wareninja.opensource.ip2location.DataGenerator</mainClass>
+                     </manifest>
+                 </archive>
+                 <descriptorRefs>
+                     <descriptorRef>jar-with-dependencies</descriptorRef>
+                 </descriptorRefs>
+             </configuration>
+             <executions>
+                 <execution>
+                     <id>make-my-jar-with-dependencies</id>
+                     <phase>package</phase>
+                     <goals>
+                         <goal>single</goal>
+                     </goals>
+                 </execution>
+             </executions>
+         </plugin>
+    </plugins>
+  </build>
+	<dependencies>
+		<!-- https://code.google.com/p/google-gson/ -->
+		<dependency>
+			<groupId>com.google.code.gson</groupId>
+			<artifactId>gson</artifactId>
+			<version>2.3.1</version>
+		</dependency>
+		<!-- https://code.google.com/p/guava-libraries -->
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+			<version>18.0</version>
+		</dependency>
+		<!-- http://super-csv.github.io/ -->
+		<dependency>
+		    <groupId>net.sf.supercsv</groupId>
+		    <artifactId>super-csv</artifactId>
+		    <version>2.2.1</version>
+		</dependency>
+		<!-- 
+		<dependency>
+		    <groupId>net.sf.supercsv</groupId>
+		    <artifactId>super-csv-dozer</artifactId>
+		    <version>2.2.1</version>
+		</dependency>
+		-->
+	</dependencies>
+	<developers>
+        <developer>
+            <id>WareNinja</id>
+            <name>incognito</name>
+            <email>yg@wareninja.com</email>
+        </developer>
+    </developers>
+    <licenses>
+        <license>
+            <name>Apache License Version 2.0</name>
+            <url>LICENSE.txt</url>
+        </license>
+    </licenses>  
+</project>

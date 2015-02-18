@@ -1,6 +1,17 @@
+# Ignore all dotfiles...
+.*
+# except for .gitignore
+!.gitignore
+
+*.class
+
 target/
 pom.xml.tag
 pom.xml.releaseBackup
 pom.xml.versionsBackup
 pom.xml.next
 release.properties
+*.CSV
+*.csv
+*.json
+

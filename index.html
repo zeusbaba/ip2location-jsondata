@@ -27,17 +27,16 @@
         </ul>
       </header>
       <section>
-        <h3>
-<a id="welcome-to-github-pages" class="anchor" href="#welcome-to-github-pages" aria-hidden="true"><span class="octicon octicon-link"></span></a>Welcome to GitHub Pages.</h3>
+        
 
 <p>
-A simple & readable Java code, reusable to generate JSON data files from IP2Location Database (DBx.csv) files! 
+A simple & readable Java code, reusable to generate JSON data files from [IP2Location Database (DBx.csv)](http://lite.ip2location.com) files! 
 This library also makes an easy to use executable JAR, so you don't need to deal with the codebase.   
 </p>
 
-<p>
+<h3>
 <b>How to use <em>this library</em>?</b>   
-</p>
+</h3>
 
 <p>
 <b>Option.1: use only the executable JAR! </b><br>
@@ -60,8 +59,30 @@ this will generate the snapshot of executable jar. You can run this JAR file as 
 whenever in doubt, read the source luke!   
 </p>
 
-<p>
 
+<h3>
+<b>What about <em>the generated JSON</em> data files?</b>   
+</h3>
+<p>
+Each generated file contains JSON representation of each IP record per line. Example record per line; 
+
+<pre><code>
+  {"country_code":"JP","country_name":"Japan","region_name":"Hiroshima","city_name":"Hiroshima","zip_code":"730-0011","time_zone":"+09:00","_id":16793600,"ip_to":16797695,"ipaddress_from":"1.0.64.0","ipaddress_to":"1.0.79.255","_created":1424270870645,"createdAt":"2015-02-18T14:47:50+0000","lat":34.38528,"lng":132.45528,"latlng":[34.38528,132.45528]}
+
+</code></pre>
+  
+</p>
+
+
+<p>
+These JSON data can be used for variety of purposes.<br> 
+The most useful of these is to store them to MongoDB, then leverage the power of MongoDB search from your applications!<br> 
+And you can easily import these JSON files into MongoDB with [mongoimport](http://docs.mongodb.org/manual/reference/program/mongoimport)   
+<br>
+For example; 
+<pre><code>$ cd your_repo_root/repo_name
+$ mvn clean install
+</code></pre>
 </p>
 
 

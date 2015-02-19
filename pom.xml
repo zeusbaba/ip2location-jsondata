@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.wareninja.opensource</groupId>
   <artifactId>ip2location-jsondata</artifactId>
-  <version>0.0.1</version>
+  <version>0.0.2</version>
   <name>ip2location-jsondata</name>
   <description>Generate JSON data (for MongoDB) from IP2LOCATION...-DBx.CSV files</description>
     <build>

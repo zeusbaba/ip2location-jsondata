@@ -152,8 +152,6 @@ public class DataGenerator {
             		
             		Files.asCharSink(outputFile,  Charsets.UTF_8).writeLines( outputRecords );
             		outputRecords.clear();
-            		
-	            	if (fileCounter==1) break;
             	}
             }
             

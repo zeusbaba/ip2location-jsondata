@@ -65,7 +65,7 @@ public class DataGenerator {
 			System.out.println(TAG+" " + "for usage... Read the source Luke!!! ");
 			System.out.println(TAG+" required parameters: " + "file_path file_name record_per_outputfile");
 			System.out.println(TAG+" example: " + "/full-path-to-csv-files/ IP2LOCATION-LITE-DB5.CSV 20000");
-			System.out.println(TAG+" you can also skip record_per_outputfile param, then default value ( "+RECORDS_PER_FILE_DEFAULT+" ) will be used!");
+			System.out.println(TAG+" you may also ignore record_per_outputfile param, then default value ( "+RECORDS_PER_FILE_DEFAULT+" ) will be used!");
 			System.out.println(TAG+" remember that: " + "file_name MUST contain DB keyword!! e.g. ...-DB5, etc ");
 			return;
 		}

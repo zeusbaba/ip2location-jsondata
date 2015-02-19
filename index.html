@@ -75,15 +75,15 @@ A sample JSON record generated from
 {"country_code":"JP","country_name":"Japan","region_name":"Tokyo","city_name":"Tokyo","zip_code":"214-0021","time_zone":"+09:00","_id":16797696,"ip_to":16798719,"ipaddress_from":"1.0.80.0","ipaddress_to":"1.0.83.255","_created":1424270870645,"createdAt":"2015-02-18T14:47:50+0000","lat":35.689506,"lng":139.6917,"latlng":[35.689506,139.6917]}
   
 </code></pre>
-note that; "_id" field holds the data for "ip_from"!<br>   
-The reason of naming it as "_id", instead of "ip_from", is to optomise the collection for MongoDB!<br>    
-<em>This, "_id", automatically generates an index when imported to MongoDB, and ensures uniqueness of imported IP2Location records.</em>     
+note that; <em>"_id"</em> field holds the data for <em>"ip_from"</em>!<br>   
+The reason of naming it as <em>"_id"</em>, instead of <em>"ip_from"</em>, is to optomise the collection in MongoDB!<br> 
+<em>This, "_id", automatically generates an index when imported to MongoDB, and ensures uniqueness of imported IP2Location records!</em>     
 </p>
 
 
 <p>
-These JSON data can be used for variety of purposes.<br> 
-The most useful of these is to store them in MongoDB, then leverage the power of MongoDB search from your applications!<br> 
+These JSON data files can be used for variety of purposes.<br> 
+The most useful of these is to store them in MongoDB, so to leverage the power of MongoDB search from your applications!<br> 
 And you can easily import these JSON files into MongoDB with 
 <a href="http://docs.mongodb.org/manual/reference/program/mongoimport" target="_blank">mongoimport</a>   
 <br>

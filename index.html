@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <title>IP2Location-jsondata by wareninja</title>
+    <title>IP2Location-JSONdata-for-MongoDB</title>
 
     <link rel="stylesheet" href="stylesheets/styles.css">
     <link rel="stylesheet" href="stylesheets/pygment_trac.css">
@@ -17,8 +17,8 @@
   <body>
     <div class="wrapper">
       <header>
-        <h1>IP2Location-jsondata</h1>
-        <p>Generate JSON data from <b>IP2Location Database (DBx.csv) files</b></p>
+        <h1>IP2Location-JSONdata for-MongoDB</h1>
+        <p><b>Generate JSON data from <em>IP2Location Database (DBx.csv) files</em></b></p>
         <p class="view"><a href="https://github.com/wareninja/ip2location-jsondata">View the Project on GitHub <small>wareninja/ip2location-jsondata</small></a></p>
         <ul>
           <li><a href="https://github.com/wareninja/ip2location-jsondata/zipball/master">Download <strong>ZIP File</strong></a></li>
@@ -31,8 +31,8 @@
 
 <p>
 A simple & readable Java code, reusable to generate JSON data files from 
-<a href="http://lite.ip2location.com" target="_blank">IP2Location Database (DBx.csv)</a> files! 
-This library also makes an easy to use executable JAR, so you don't need to deal with the codebase.   
+<a href="http://lite.ip2location.com" target="_blank">IP2Location Database (DBx.csv)</a> files!<br> 
+This library also makes an easy to use executable JAR, so you don't have to deal with the codebase.   
 </p>
 
 <h3>
@@ -75,7 +75,9 @@ A sample JSON record generated from
 {"country_code":"JP","country_name":"Japan","region_name":"Tokyo","city_name":"Tokyo","zip_code":"214-0021","time_zone":"+09:00","_id":16797696,"ip_to":16798719,"ipaddress_from":"1.0.80.0","ipaddress_to":"1.0.83.255","_created":1424270870645,"createdAt":"2015-02-18T14:47:50+0000","lat":35.689506,"lng":139.6917,"latlng":[35.689506,139.6917]}
   
 </code></pre>
-  
+note that; "_id" field holds the data for "ip_from"!<br>   
+The reason of naming it as "_id", instead of "ip_from", is to optomise the collection for MongoDB!<br>    
+<em>This, "_id", automatically generates an index when imported to MongoDB, and ensures uniqueness of imported IP2Location records.</em>     
 </p>
 
 

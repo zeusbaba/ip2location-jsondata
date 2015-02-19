@@ -30,7 +30,8 @@
         
 
 <p>
-A simple & readable Java code, reusable to generate JSON data files from [IP2Location Database (DBx.csv)](http://lite.ip2location.com) files! 
+A simple & readable Java code, reusable to generate JSON data files from 
+<a href="http://lite.ip2location.com">IP2Location Database (DBx.csv)</a> files! 
 This library also makes an easy to use executable JAR, so you don't need to deal with the codebase.   
 </p>
 
@@ -40,7 +41,8 @@ This library also makes an easy to use executable JAR, so you don't need to deal
 
 <p>
 <b>Option.1: use only the executable JAR! </b><br>
-Just download the latest jar from [releases](https://github.com/wareninja/ip2location-jsondata/releases)<br>
+Just download the latest jar from 
+<a href="https://github.com/wareninja/ip2location-jsondata/releases" target="_blank">releases</a><br>
 Then you can run that <em>jar file/lib</em> from the command line. For example; <br>
 <pre><code>
 $ java -jar ip2location-jsondata-0.0.1.jar data-folder-is-here/ IP2LOCATION-LITE-DB11.CSV
@@ -64,7 +66,9 @@ whenever in doubt, read the source luke!
 <b>What about <em>the generated JSON</em> data files?</b>   
 </h3>
 <p>
-Each generated file contains JSON representation of each IP record per line. Example record per line; 
+Each generated file contains JSON representation of each IP record per line. <br>
+A sample JSON record generated from 
+<a href="http://lite.ip2location.com/" target="_blank">IP2LOCATION-LITE-DB11.CSV</a>; 
 
 <pre><code>
 
@@ -78,11 +82,12 @@ Each generated file contains JSON representation of each IP record per line. Exa
 <p>
 These JSON data can be used for variety of purposes.<br> 
 The most useful of these is to store them to MongoDB, then leverage the power of MongoDB search from your applications!<br> 
-And you can easily import these JSON files into MongoDB with [mongoimport](http://docs.mongodb.org/manual/reference/program/mongoimport)   
+And you can easily import these JSON files into MongoDB with 
+<a href="http://docs.mongodb.org/manual/reference/program/mongoimport" target="_blank">mongoimport</a>   
 <br>
 For example; 
-<pre><code>$ cd your_repo_root/repo_name
-$ mvn clean install
+<pre><code>
+mongoimport -h mongo_db_url:port -d db_name -c collection_name -u db_username -p db_pwd --upsert --file IP2LOCATION-LITE-DB9-1.json
 </code></pre>
 </p>
 

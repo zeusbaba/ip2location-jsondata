@@ -31,7 +31,7 @@
 
 <p>
 A simple & readable Java code, reusable to generate JSON data files from 
-<a href="http://lite.ip2location.com">IP2Location Database (DBx.csv)</a> files! 
+<a href="http://lite.ip2location.com" target="_blank">IP2Location Database (DBx.csv)</a> files! 
 This library also makes an easy to use executable JAR, so you don't need to deal with the codebase.   
 </p>
 
@@ -54,11 +54,11 @@ $ java -jar ip2location-jsondata-0.0.1.jar data-folder-is-here/ IP2LOCATION-LITE
 <b>Option.2: use the source code! </b><br>
 Clone the project source code from github, then import as maven project in your ide!<br> 
 Then; 
-<pre><code>$ cd your_repo_root/repo_name
+<pre><code>$ cd your_repo_base/repo_name
 $ mvn clean install
 </code></pre>
-this will generate the snapshot of executable jar. You can run this JAR file as described in the prev option above!<br> 
-whenever in doubt, read the source luke!   
+this will generate the snapshot of executable JAR, which you can run as described in the prev option above.<br> 
+...whenever in doubt, read the source luke!   
 </p>
 
 
@@ -66,7 +66,7 @@ whenever in doubt, read the source luke!
 <b>What about <em>the generated JSON</em> data files?</b>   
 </h3>
 <p>
-Each generated file contains JSON representation of each IP record per line. <br>
+Each generated file contains JSON representation of IP records, one per line. <br>
 A sample JSON record generated from 
 <a href="http://lite.ip2location.com/" target="_blank">IP2LOCATION-LITE-DB11.CSV</a>; 
 
@@ -81,13 +81,13 @@ A sample JSON record generated from
 
 <p>
 These JSON data can be used for variety of purposes.<br> 
-The most useful of these is to store them to MongoDB, then leverage the power of MongoDB search from your applications!<br> 
+The most useful of these is to store them in MongoDB, then leverage the power of MongoDB search from your applications!<br> 
 And you can easily import these JSON files into MongoDB with 
 <a href="http://docs.mongodb.org/manual/reference/program/mongoimport" target="_blank">mongoimport</a>   
 <br>
 For example; 
 <pre><code>
-mongoimport -h mongo_db_url:port -d db_name -c collection_name -u db_username -p db_pwd --upsert --file IP2LOCATION-LITE-DB9-1.json
+mongoimport -h mongo_db_url:port -d db_name -c collection_name -u db_username -p db_pwd --upsert --file IP2LOCATION-LITE-DB11-1.json
 </code></pre>
 </p>
 
@@ -97,7 +97,7 @@ mongoimport -h mongo_db_url:port -d db_name -c collection_name -u db_username -p
   </h3>
 
 <p>Having trouble or want a new feature? 
-For any bugs or feature requests, please use only [github issues!](https://github.com/wareninja/ip2location-jsondata/issues)
+For any bugs or feature requests, please use <a href="https://github.com/wareninja/ip2location-jsondata/issues" target="_blank">github issues!</a>
 <br>Contributors are welcome, plz just send pull request if you have smt to add! 
 </p>
       </section>

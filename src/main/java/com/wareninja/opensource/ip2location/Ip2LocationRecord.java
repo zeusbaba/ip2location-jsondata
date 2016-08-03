@@ -1,13 +1,13 @@
 package com.wareninja.opensource.ip2location;
 
 /***
- *   Copyleft 2015 - WareNinja - BeerStorm / Rumble In The Jungle!
+ *   Copyleft 2016 - BeerStorm / Rumble In The Jungle!
  * 
- *  @author: yg@wareninja.com
- *  @see https://github.com/WareNinja
- *  disclaimer: I code for fun, dunno what I'm coding about! :-)
+ *  @author: yilmaz@guleryuz.net 
+ *  @see https://github.com/WareNinja | https://twitter.com/guleryuz 
  *  
- *  Author: yg@wareninja.com / twitter: @WareNinja
+ *  disclaimer: I code for fun, dunno what I'm coding about!
+ *  
  */
 
 

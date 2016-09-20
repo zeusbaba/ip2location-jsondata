@@ -18,7 +18,7 @@
     <div class="wrapper">
       <header>
         <h1>IP2Location-JSONdata for-MongoDB</h1>
-        <p><b>Generate JSON data from <em>IP2Location Database (DBx.csv) files</em></b></p>
+        <p><b>Generate JSON data from <em>IP2Location Database (DBx.csv) files</em> OR just import into ElasticSearch!</b></p>
         <p class="view"><a href="https://github.com/wareninja/ip2location-jsondata">View the Project on GitHub <small>wareninja/ip2location-jsondata</small></a></p>
         <ul>
           <li><a href="https://github.com/wareninja/ip2location-jsondata/zipball/master">Download <strong>ZIP File</strong></a></li>
@@ -30,8 +30,8 @@
         
 
 <p>
-A simple & readable Java code, reusable to generate JSON data files from 
-<a href="http://lite.ip2location.com" target="_blank">IP2Location Database (DBx.csv)</a> files!<br> 
+A simple (yet effective!) Java library (JAR), to import directly to ElasticSearch OR to generate JSON data files for MongoDB-import 
+using <a href="http://lite.ip2location.com" target="_blank">IP2Location Database (DBx.csv)</a> files!<br> 
 This library also makes an easy to use executable JAR, so you don't have to deal with the codebase.   
 </p>
 
@@ -45,7 +45,7 @@ Just download the latest jar from
 <a href="https://github.com/wareninja/ip2location-jsondata/releases" target="_blank">releases</a><br>
 Then you can run that <em>jar file/lib</em> from the command line. For example; <br>
 <pre><code>
-$ java -jar ip2location-jsondata-0.0.1.jar data-folder-is-here/ IP2LOCATION-LITE-DB11.CSV
+$ java -jar ip2location-jsondata-1.0.0.jar -f importer.conf
 </code></pre>
 <br><em>Remember that, you must have JVM/JDK in your local environment to be able to run this jar!</em> 
 </p>

@@ -4,6 +4,7 @@
 !.gitignore
 
 *.class
+*.log 
 
 target/
 tempdata/

@@ -3,7 +3,7 @@
  *   Copyleft 2016 - BeerStorm / Rumble In The Jungle!
  * 
  *  @author: yilmaz@guleryuz.net 
- *  @see https://github.com/WareNinja | https://twitter.com/guleryuz 
+ *  @see https://github.com/WareNinja | http://www.BeerStorm.net 
  *  
  *  disclaimer: I code for fun, dunno what I'm coding about!
  *  
@@ -16,6 +16,7 @@ import java.io.InputStreamReader;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.supercsv.cellprocessor.Optional;
 import org.supercsv.cellprocessor.ParseDouble;
 import org.supercsv.cellprocessor.ParseLong;
@@ -28,58 +29,97 @@ import org.supercsv.prefs.CsvPreference;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
+import com.google.gson.JsonObject;
+import com.wareninja.opensource.ip2location.config.*;
+import com.wareninja.opensource.ip2location.services.*;
 
 /**
  * load & parse data from IP2LOCATION's CSV file
- * then generates JSON files, ready to import into MongoDB! 
+ * then it can 
+ * - generate JSON files, ready for import into MongoDB!
+ * - OR directly import into Elastic Search!  
  * 
  * 
  * mvn clean install
  * this will generate executable jar file
  * then ... 
  * Usage: 
- * 	java -jar ip2location-jsondata-0.0.x.jar file_path file_name record_per_outputfile
- * 	java -jar ip2location-jsondata-0.0.x.jar /full-path-to-data-files/ IP2LOCATION-LITE-DB9.CSV 10000
+ * 	java -jar ip2location-jsondata-1.0.x.jar -f importer.conf
  * 
- *  you can also skip record_per_outputfile param, then default value (50000) will be used!
+ * see example.conf file for details.
  * 
- * 
- * the generated JSON files are ready for use! you can easily import them to MongoDB with mongoimport 
+ * 1) For MongoDB: 
+ * the generated JSON files are ready for import to MongoDB using 'mongoimport' 
  * for example, using this command;
  * 		mongoimport -h mongo_db_url:port -d db_name -c collection_name -u db_username -p db_pwd --upsert --file IP2LOCATION-LITE-DB9-1.json
  * 
  * to learn more about mongoimport, see: http://docs.mongodb.org/manual/reference/program/mongoimport
  *  
+ *  2) For ElasticSearch:  
+ *  you directly import all ip2location data into ElasticSearch! :-) 
+ *  
  */
-public class DataGenerator {
+public class Ip2LocImporter {
 
-	final static String TAG = DataGenerator.class.getSimpleName();
-	final static boolean DEBUG = false;
+	final static String TAG = Ip2LocImporter.class.getSimpleName();
+	private final Logger logger = Logger.getLogger(Ip2LocImporter.class);
 	
-	final static Integer RECORDS_PER_FILE_DEFAULT = 50000;// items/records per output file
-	final static Boolean WITH_IP_ADDRESS = true; // if true, then will generate also human-readable ip address
+	private final String parameter;
+    public Ip2LocImporter(String parameter) {
+        this.parameter = parameter;
+    }
 	
 	public static void main(String[] args) {
 		
-		if (args.length<2) {
-			System.out.println(TAG+" " + "for usage... Read the source Luke!!! ");
-			System.out.println(TAG+" required parameters: " + "file_path file_name record_per_outputfile");
-			System.out.println(TAG+" example: " + "/full-path-to-csv-files/ IP2LOCATION-LITE-DB5.CSV 20000");
-			System.out.println(TAG+" you may also ignore record_per_outputfile param, then default value ( "+RECORDS_PER_FILE_DEFAULT+" ) will be used!");
-			System.out.println(TAG+" remember that: " + "file_name MUST contain DB keyword!! e.g. ...-DB5, etc ");
-			return;
+		configAssertion(args);
+		
+		String parameter = args[1];
+		Ip2LocImporter dataGenerator = new Ip2LocImporter(parameter);
+		dataGenerator.startApp();
+	}
+	
+	public void startApp() {
+		
+		FileConfiguration fConfig = new FileConfiguration(parameter);
+		/*YamlConfiguration yamlConfig = fConfig.getFileContent();
+		if (yamlConfig !=null) {
+        	processImport(yamlConfig);
+        }*/
+		java.util.Optional<YamlConfiguration> yamlConfig = java.util.Optional.ofNullable(fConfig.getFileContent());
+		long begin = System.currentTimeMillis();
+        try {
+            yamlConfig.ifPresent(this::processImport);
+        } finally {
+        	logger.debug("Load duration: " + (System.currentTimeMillis() - begin) + "ms");
+        }
+	}
+	
+	public void processImport(YamlConfiguration config) {
+		
+		String filePath = config.getImporter().filePath;
+		String sourceFileName = filePath + config.getImporter().fileName;
+		Integer recordsPerFile = config.getImporter().recordPerFile;
+		
+		if(config.getImporter().debugMode) {
+			logger.debug( String.format("input params: %s %s", sourceFileName, recordsPerFile) );
+			logger.debug( String.format("configs: %s", config) );
 		}
 		
-		String filePath = args[0];
-		String sourceFileName = filePath + args[1];
-		
-		Integer recordsPerFile = RECORDS_PER_FILE_DEFAULT;
-		if (args.length>=3) {
-			recordsPerFile = MyUtils.stringToInteger( args[2] );
-			if (recordsPerFile==null) recordsPerFile = RECORDS_PER_FILE_DEFAULT;
+		BulkService bulkService = null;
+		ElasticConfiguration elastic = null;
+		if ( ("elastic".equalsIgnoreCase(config.getImporter().dbType) 
+				|| "es".equalsIgnoreCase(config.getImporter().dbType) )
+				&& (config.getElastic()!=null && config.getElastic().host!=null && config.getElastic().port!=null)
+				) {
+			
+			elastic = new ElasticConfiguration(config);
+			bulkService = new ElasticBulkService(config, elastic);
+			
+			if (config.getElastic().dropDataset) {
+				bulkService.dropDataSet();
+			}
 		}
-		if(DEBUG) System.out.println( String.format("input params: %s %s", sourceFileName, recordsPerFile) );
-		
+		Boolean isMongoDb = (elastic==null); //true;// mongo by default
 		
 		String outputFileName = "";
 		
@@ -87,6 +127,7 @@ public class DataGenerator {
 		File sourceFile;
 		File outputFile;
 		List<String> outputRecords;
+		List<JsonObject> outputJsonObjects;
 		Long currentTime = 0L;
 		Integer fileCounter = 0;
 		try {
@@ -101,77 +142,99 @@ public class DataGenerator {
             
             final CellProcessor[] processors = getCellProcessors(sourceFile.getName());
             
-            if(DEBUG) System.out.println(">> CsvListReader :: Importing... "+sourceFile.getName());
+            if(config.getImporter().debugMode) {
+            	logger.debug(">> CsvListReader :: Importing... "+sourceFile.getName());
+            }
             
             // base file name for the json files
             outputFileName = sourceFile.getName().substring(0, sourceFile.getName().lastIndexOf(".")) + "-";
             
             List<Object> recordList;
             
-            Ip2LocationRecord ip2LocationRecord;
+            Ip2LocData ip2LocData;
             outputRecords = new LinkedList<String>();
+            outputJsonObjects = new LinkedList<JsonObject>();
             currentTime = System.currentTimeMillis();
             
             while( (recordList = listReader.read(processors)) != null ) {
                 
-            	if(DEBUG) System.out.println(String.format("lineNo=%s, rowNo=%s, recordList=%s", listReader.getLineNumber(),listReader.getRowNumber(), recordList));
+            	//if(config.getImporter().debugMode) {
+            	//	System.out.println(String.format("lineNo=%s, rowNo=%s, recordList=%s", listReader.getLineNumber(),listReader.getRowNumber(), recordList));
+            	//}
             	
-            	ip2LocationRecord = new Ip2LocationRecord();
+            	ip2LocData = new Ip2LocData();
             	// -> DB1.LITE
-            	ip2LocationRecord.ip_from = (Long)recordList.get(0);
-            	ip2LocationRecord.ip_to = (Long)recordList.get(1);
-            	if (WITH_IP_ADDRESS) {
-            		ip2LocationRecord.ipaddress_from = MyUtils.ipNumber2ipAddress(ip2LocationRecord.ip_from);
-            		ip2LocationRecord.ipaddress_to = MyUtils.ipNumber2ipAddress(ip2LocationRecord.ip_to);
+            	ip2LocData.ip_from = (Long)recordList.get(0);
+            	ip2LocData.ip_to = (Long)recordList.get(1);
+            	if (config.getImporter().withIpAddress) {
+            		ip2LocData.ipaddress_from = MyUtils.ipNumber2ipAddress(ip2LocData.ip_from);
+            		ip2LocData.ipaddress_to = MyUtils.ipNumber2ipAddress(ip2LocData.ip_to);
             	}
-            	ip2LocationRecord.country_code = (String)recordList.get(2);
-            	ip2LocationRecord.country_name = (String)recordList.get(3);
+            	ip2LocData.country_code = (String)recordList.get(2);
+            	ip2LocData.country_name = (String)recordList.get(3);
             	if (recordList.size()>=6) { // -> DB3.LITE
-	            	ip2LocationRecord.region_name = (String)recordList.get(4);
-	            	ip2LocationRecord.city_name = (String)recordList.get(5);
+	            	ip2LocData.region_name = (String)recordList.get(4);
+	            	ip2LocData.city_name = (String)recordList.get(5);
             	}
             	if (recordList.size()>=8) {// -> DB5.LITE
-            		ip2LocationRecord.setLocation( (Double)recordList.get(6), (Double)recordList.get(7) );
+            		ip2LocData.setLocation( (Double)recordList.get(6), (Double)recordList.get(7) );
             	}
             	if (recordList.size()>=9) {// -> DB9.LITE
-            		ip2LocationRecord.zip_code = (String)recordList.get(8);
+            		ip2LocData.zip_code = (String)recordList.get(8);
             	}
             	if (recordList.size()>=10) {// -> DB11.LITE
-            		ip2LocationRecord.time_zone = (String)recordList.get(9);
+            		ip2LocData.time_zone = (String)recordList.get(9);
             	}
-            	ip2LocationRecord.fillInTimestamp( currentTime );
-            	if(DEBUG) System.out.println(String.format("the JSON= %s", ip2LocationRecord.toJsonStringPrinting()));
+            	ip2LocData.fillInTimestamp( currentTime );
+            	//if(config.getImporter().debugMode) {
+            	//	System.out.println(String.format("the JSON= %s", ip2LocData.toJsonStringPrinting()));
+            	//}
             	
-            	outputRecords.add( ip2LocationRecord.toJsonObject().toString() );
+            	outputRecords.add( ip2LocData.toJsonObject(isMongoDb).toString() );
+            	outputJsonObjects.add( ip2LocData.toJsonObject(isMongoDb) );
             	if (outputRecords.size() >= recordsPerFile ) {
 
-            		fileCounter++;
-            		outputFile = new File(
-            				filePath+outputFileName + fileCounter +".json"
-        					);
+            		if (isMongoDb) {
+	            		fileCounter++;
+	            		outputFile = new File(
+	            				filePath+outputFileName + fileCounter +".json"
+	        					);
+	            		Files.asCharSink(outputFile,  Charsets.UTF_8).writeLines( outputRecords );
+            		}
+            		else { // elastic search
+            			bulkService.proceed(outputJsonObjects);
+            		}
             		
-            		Files.asCharSink(outputFile,  Charsets.UTF_8).writeLines( outputRecords );
+            		outputJsonObjects.clear();
             		outputRecords.clear();
             	}
             }
             
-            // ensure that everything is used! 
-            if (outputRecords.size() > 0 ) {
-            	fileCounter++;
-        		outputFile = new File(
-        				filePath+outputFileName + fileCounter +".json"
-    					);
-        		
-        		Files.asCharSink(outputFile,  Charsets.UTF_8).writeLines( outputRecords );
+            // ensure that all data is processed! 
+            if (outputRecords.size() > 0 || outputJsonObjects.size()>0) {
+            	if (isMongoDb) {
+	            	fileCounter++;
+	        		outputFile = new File(
+	        				filePath+outputFileName + fileCounter +".json"
+	    					);
+	        		
+	        		Files.asCharSink(outputFile,  Charsets.UTF_8).writeLines( outputRecords );
+            	}
+            	else { // elastic search
+        			bulkService.proceed(outputJsonObjects);
+        		}
+            	
+            	outputJsonObjects.clear();
         		outputRecords.clear();
             }
 		}
 		catch (Exception ex) {
-			System.err.println("ex: "+ ex.toString());
+			logger.error("ex: "+ ex.toString());
 		}
 		finally {
-			System.out.println( String.format("Job completed!!! %s json-data files generated...", ""+fileCounter) );
+			logger.debug( String.format("Job completed!!! %s json-data files generated...", ""+fileCounter) );
 		}
+		
 	}
 	
 	
@@ -257,4 +320,24 @@ public class DataGenerator {
 	        return processors;
 	}
 
+	
+	static void configAssertion(String[] args) {
+		
+        if (args.length == 0) {
+        	System.err.println(TAG+" " + "about usage... Read the source Luke!!! ");
+			System.err.println(TAG+" required parameters: " + "configfile_fullpath_and_name");
+			System.err.println(TAG+" example: " + "java -jar ip2location.jar -f /full-path-to-config-file/myconfig.yml");
+			System.err.println(TAG+" plz reuse the example config.yml under resources folder");
+			
+            System.exit(-1);
+        }
+        if (!args[0].equals("-f")) {
+        	System.err.println("Please specify the -f parameter with a correct yaml file");
+            System.exit(-1);
+        }
+        if (args.length != 2) {
+        	System.err.println("Incorrect syntax. Pass max 2 parameters");
+            System.exit(-1);
+        }
+    }
 }

@@ -4,7 +4,7 @@ package com.wareninja.opensource.ip2location;
  *   Copyleft 2016 - BeerStorm / Rumble In The Jungle!
  * 
  *  @author: yilmaz@guleryuz.net 
- *  @see https://github.com/WareNinja | https://twitter.com/guleryuz 
+ *  @see https://github.com/WareNinja | http://www.BeerStorm.net 
  *  
  *  disclaimer: I code for fun, dunno what I'm coding about!
  *  
@@ -12,21 +12,24 @@ package com.wareninja.opensource.ip2location;
 
 
 import java.io.Serializable;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.Map;
-import java.util.UUID;
 
+import com.google.gson.FieldNamingStrategy;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import com.wareninja.opensource.ip2location.config.MyUtils;
 
-public class Ip2LocationRecord implements Serializable {//extends BaseLocations {
+public class Ip2LocData implements Serializable {//extends BaseLocations {
 	
 	private static final long serialVersionUID = 1L;
-	final String TAG = Ip2LocationRecord.class.getSimpleName();
+	final String TAG = Ip2LocData.class.getSimpleName();
 	
 	@Expose public String country_code;
 	@Expose public String country_name;
@@ -36,7 +39,8 @@ public class Ip2LocationRecord implements Serializable {//extends BaseLocations 
 	@Expose public String zip_code;
 	@Expose public String time_zone;
 	
-	@SerializedName("_id") @Expose public Long ip_from;
+	//@SerializedName("_id") 
+	@Expose public Long ip_from;
   	@Expose public Long ip_to;
     
   	// optional; can be used to store human-readable ip address
@@ -54,43 +58,43 @@ public class Ip2LocationRecord implements Serializable {//extends BaseLocations 
     }
   	
   	@Expose public Double lat;
-	@Expose public Double lng;
+	@Expose public Double lon;
 	
-	@Expose public Double[] latlng;
-	public void updateLatlng() {
+	@Expose public Double[] location;
+	public void updateLocation() {
 		
-		if (MyUtils.isLatLngValid(lat, lng)) {
-			this.latlng = new Double[] { lat, lng};
+		if (MyUtils.isLatLngValid(lat, lon)) {
+			this.location = new Double[] { lat, lon};
 		}
 	}
 	
-	public void setLocation(String lat, String lng) {
-    	setLocation(Double.parseDouble(lat), Double.parseDouble(lng));
+	public void setLocation(String lat, String lon) {
+    	setLocation(Double.parseDouble(lat), Double.parseDouble(lon));
     }
-    public void setLocation(Double lat, Double lng) {
+    public void setLocation(Double lat, Double lon) {
     	this.lat = lat;
-    	this.lng = lng;
-    	//if (latlng==null || latlng.length<2) updateLatlng();
-    	updateLatlng();
+    	this.lon = lon;
+    	//if (location==null || location.length<2) updateLocation();
+    	updateLocation();
     }
-    public String getLatLng() {
-    	if (latlng!=null && latlng.length==2) {
-    		return latlng[0]+","+latlng[1];
+    public String getLocation() {
+    	if (location!=null && location.length==2) {
+    		return location[0]+","+location[1];
     	}
-    	else if (lat!=null && lng!=null) {
-			return String.valueOf(lat)+","+String.valueOf(lng);
+    	else if (lat!=null && lon!=null) {
+			return String.valueOf(lat)+","+String.valueOf(lon);
 		}
     	else return "";
     }
-    public boolean isNotEmptyLatLng() {
-		return !isEmptyLatLng();
+    public boolean isNotEmptyLocation() {
+		return !isEmptyLocation();
 	}
-	public boolean isEmptyLatLng() {
-		return ( ( lat==null && lng==null )
-				|| "".equals( Double.toString(lat) + Double.toString(lng) )
-				|| ( lat==(Double)0d || lng==(Double)0d )
-				|| (this.latlng==null || this.latlng.length!=2)
-				//|| !LocoUtils.isLatLngValid(lat, lng)
+	public boolean isEmptyLocation() {
+		return ( ( lat==null && lon==null )
+				|| "".equals( Double.toString(lat) + Double.toString(lon) )
+				|| ( lat==(Double)0d || lon==(Double)0d )
+				|| (this.location==null || this.location.length!=2)
+				//|| !LocoUtils.isLocationValid(lat, lon)
 				);
 	}
   	
@@ -109,8 +113,8 @@ public class Ip2LocationRecord implements Serializable {//extends BaseLocations 
         
         if (_created==null) fillInTimestamp(); 
         if (lat!=null) respMap.put("lat", lat);
-		if (lng!=null) respMap.put("lng", lng);
-		if ( MyUtils.isNotEmpty(getLatLng()) ) respMap.put("latlng", getLatLng());
+		if (lon!=null) respMap.put("lon", lon);
+		if ( MyUtils.isNotEmpty(getLocation()) ) respMap.put("location", getLocation());
         
         return respMap;
     }
@@ -126,12 +130,41 @@ public class Ip2LocationRecord implements Serializable {//extends BaseLocations 
 				+ ", city_name=" + city_name + ", address=" + address
 				+ ", zip_code="+zip_code + " , time_zone="+time_zone
 				+ ", _created="+_created
-				+ ", latlng="+getLatLng()
+				+ ", location="+getLocation()
 				+ "]";
 	}
 	
 	public JsonObject toJsonObject() {
-		return (new JsonParser()).parse( toJsonString() ).getAsJsonObject();
+		return toJsonObject(false);
+	}
+	public JsonObject toJsonObject(boolean isMongoDb) {
+		if (isMongoDb) { // for MongoDB; we set ip_from as _id, so it's indexed by default for better search 
+			FieldNamingStrategy customPolicy = new FieldNamingStrategy() {  
+			    
+			    public String translateName(Field f) {
+			        return f.getName().replace("ip_from", "_id");
+			    }
+			};
+
+			GsonBuilder gsonBuilder = new GsonBuilder()
+				    .excludeFieldsWithModifiers( new int[] { 
+				    		Modifier.STATIC, Modifier.TRANSIENT//, Modifier.FINAL 
+				    		} )
+				    .excludeFieldsWithoutExposeAnnotation()
+				    .setFieldNamingStrategy(customPolicy)
+				    ;  
+			Gson gson = gsonBuilder.create();
+  
+			return (new JsonParser()).parse( gson.toJson(this) ).getAsJsonObject();
+		}
+		else { // elastic search 
+			
+			JsonObject jsonObject = (new JsonParser()).parse( toJsonString() ).getAsJsonObject();
+			JsonObject properties = (new JsonParser()).parse( "{'location' : {'type' : 'geo_point'}}" ).getAsJsonObject();
+			jsonObject.add("properties", properties);
+			
+			return jsonObject;
+		}
 	}
     public String toJsonString() {
     	if (_created==null) fillInTimestamp();

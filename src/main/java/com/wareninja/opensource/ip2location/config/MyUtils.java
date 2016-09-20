@@ -2,18 +2,15 @@
  *   Copyleft 2016 - BeerStorm / Rumble In The Jungle!
  * 
  *  @author: yilmaz@guleryuz.net 
- *  @see https://github.com/WareNinja | https://twitter.com/guleryuz 
+ *  @see https://github.com/WareNinja | http://www.BeerStorm.net 
  *  
  *  disclaimer: I code for fun, dunno what I'm coding about!
  *  
  */
 
-package com.wareninja.opensource.ip2location;
+package com.wareninja.opensource.ip2location.config;
 
-import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Modifier;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;

@@ -17,6 +17,7 @@ import org.elasticsearch.common.unit.TimeValue;
 
 import com.google.gson.JsonObject;
 import com.wareninja.opensource.ip2location.config.ElasticConfiguration;
+import com.wareninja.opensource.ip2location.config.MyUtils;
 import com.wareninja.opensource.ip2location.config.YamlConfiguration;
 
 public class ElasticBulkService implements BulkService {
@@ -40,13 +41,27 @@ public class ElasticBulkService implements BulkService {
     @Override
     public void proceed(List content) {
         try {
-        	logger.debug("Transferring data began to elasticsearch.");
+        	logger.debug(">> Transferring data began to elasticsearch... " + content.size() + " records");
             final String indexName = config.getElastic().indexName;
             final String typeName = config.getElastic().typeName;
             for (Object o : content) {
                 //JsonObject doc = (new JsonParser()).parse( MyUtils.getGson().toJson(o) ).getAsJsonObject();
             	JsonObject doc = (JsonObject) o;
-                Object id = doc.get("ip_from");//("_id");
+                //-Object id = doc.has("ip_from")?doc.get("ip_from") : System.currentTimeMillis();//("_id");
+            	Object id; // = MyUtils.generateGenericOid();// System.currentTimeMillis();// default value
+            	if (doc.has("ip_from")) {
+            		id = doc.get("ip_from");
+            	}
+            	else if (doc.has("_id")) {
+            		id = doc.get("_id");
+            		doc.remove("_id");
+            	}
+            	/*else if (doc.has("_created")) {
+            		id = doc.get("_created");
+            	}*/
+            	else {
+            		id = MyUtils.generateGenericOid();// System.currentTimeMillis();// default value
+            	}
                 IndexRequest indexRequest = new IndexRequest(indexName, typeName, String.valueOf(id));
                 //doc.remove("_id");
                 indexRequest.source(doc.toString().getBytes(Charset.forName("UTF-8")));

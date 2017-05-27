@@ -4,7 +4,7 @@
 	
 	<groupId>com.wareninja.opensource</groupId>
 	<artifactId>ip2location-jsondata</artifactId>
-	<version>1.0.0</version>
+	<version>1.0.1</version>
 	
 	<name>ip2location-jsondata</name>
 	<description>Generate JSON data (for MongoDB and ElasticSearch) from IP2LOCATION...-DBx.CSV files</description>
@@ -61,8 +61,8 @@
 	<properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>1.8</java.version>
-        <elastic.version>2.4.0</elastic.version>
-        <shield.version>2.4.0</shield.version>
+        <elastic.version>2.4.4</elastic.version>
+        <shield.version>2.4.4</shield.version>
     </properties>
 	
 	<repositories>
@@ -120,6 +120,15 @@
             <artifactId>slf4j-log4j12</artifactId>
             <version>1.7.21</version>
         </dependency>
+        
+        <!-- https://commons.apache.org/proper/commons-lang/ -->
+        <!-- 
+        <dependency> 
+		  <groupId>org.apache.commons</groupId>
+		  <artifactId>commons-lang3</artifactId>
+		  <version>3.5</version>
+		</dependency>
+		-->
 	</dependencies>
 
 	<licenses>

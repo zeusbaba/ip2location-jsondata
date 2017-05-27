@@ -15,13 +15,18 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
+import java.util.UUID;
+
+import org.apache.log4j.Logger;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.wareninja.opensource.ip2location.services.ElasticBulkService;
 
 public final class MyUtils {
 	
 	protected static final String TAG = MyUtils.class.getSimpleName();
+	private final static Logger logger = Logger.getLogger(ElasticBulkService.class);
 
 	public static Gson getGson() {
 		return new GsonBuilder()
@@ -56,6 +61,50 @@ public final class MyUtils {
 		    .create();
 	}
 
+	
+	public static String generateGenericOid() {
+		return generateGenericOid("");
+	}
+	public static String generateGenericOid(String baseid) {
+		String output = "";
+		
+		try {
+			
+			baseid = baseid.trim();
+			if (isNotEmpty(baseid)) {
+				if (baseid.contains(" ")) baseid=baseid.replace(" ", "_");// avoid spaces!
+				output += baseid + "-";
+			}
+			output += System.currentTimeMillis();
+			//output += "-";
+			output += normalizeID ( UUID.randomUUID().toString() );
+    	}
+    	catch (Exception ex) {
+    		logger.warn("generateGenericOid ex:", ex);
+    	}
+    	
+    	return output;
+	}
+	public static String normalizeID(String input) {
+    	String output = "";
+    	
+    	try {
+    		if (input.contains("-")) {
+    			//String[] items = StringUtils.split(input, "-");
+    			String[] items = input.split("-");
+    			for (int i=0; i<items.length; i++) output += items[i];
+    		}
+    		else {
+    			output = input;
+    		}
+    	}
+    	catch (Exception ex) {
+    		logger.warn("normalizeID ex:", ex);
+    		output = input;
+    	}
+    	
+    	return output;
+    }
 	
 	// Conversion of IP address <-> IP Number
 	/* http://www.ip2location.com/faqs/db1-ip-country

@@ -1,15 +1,14 @@
-package com.wareninja.opensource.ip2location;
-
 /***
- *   Copyleft 2016 - BeerStorm / Rumble In The Jungle!
+ *   Copyleft 2016-2017 - BeerStorm / Rumble In The Jungle!
  * 
  *  @author: yilmaz@guleryuz.net 
- *  @see https://github.com/WareNinja | http://www.BeerStorm.net 
+ *  @see https://github.com/ZeusBaba | http://www.BeerStorm.net 
  *  
  *  disclaimer: I code for fun, dunno what I'm coding about!
  *  
  */
 
+package com.wareninja.opensource.ip2location;
 
 import java.io.Serializable;
 import java.lang.reflect.Field;
